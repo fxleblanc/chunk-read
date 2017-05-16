@@ -2,8 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE_BUFFER_SIZE 1000
-#define MAX_WORD_COUNT 6
+#ifndef MAX_LINE_BUFFER_SIZE
+#define MAX_LINE_BUFFER_SIZE 0
+#endif
+#ifndef WORDS_WORD_COUNT
+#define WORDS_WORD_COUNT 0
+#endif
+#ifndef DICT_WORD_COUNT
+#define DICT_WORD_COUNT 0
+#endif
 
 int main() {
 	FILE *words_file = fopen("words.txt", "r");
@@ -12,21 +19,24 @@ int main() {
 		return 1;
 	}
 
-	char **chunk = malloc(MAX_WORD_COUNT * sizeof(char *));
+	char **chunk = malloc(WORDS_WORD_COUNT * sizeof(char *));
+	printf("Maximum line size: %d\n", MAX_LINE_BUFFER_SIZE);
+	printf("Number of words: %d\n", WORDS_WORD_COUNT);
 	int i = 0;
 	int num_char = 0;
 	char line_buffer[MAX_LINE_BUFFER_SIZE];
-	while(fgets(line_buffer, sizeof(line_buffer), words_file) && i < MAX_WORD_COUNT) {
-		printf("%s\n", line_buffer);
+	while(fgets(line_buffer, sizeof(line_buffer), words_file) && i < WORDS_WORD_COUNT) {
 		chunk[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
-		char *end_char_ptr = strchr(line_buffer, '\n');
+		char *end_char_ptr = strchrnul(line_buffer, '\n');
 		int end_char_pos = end_char_ptr - line_buffer;
-		printf("%d\n", end_char_pos);
 		num_char += end_char_pos + 1;// +1 for \n characters
 		strncpy(chunk[i], line_buffer, end_char_pos);
 		i++;
 	}
-	printf("%d", num_char);
+	for(int i = 0;i < WORDS_WORD_COUNT;i++) {
+		printf("%s\n", chunk[i]);
+	}
+	printf("Total number of characters: %d\n", num_char);
 
 	return 0;
 }
