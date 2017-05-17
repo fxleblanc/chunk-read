@@ -47,7 +47,7 @@ void get_chunk(FILE *file, struct chunk *ch) {
 	int end_char_pos = 0;
 	fseek(file, ch->start, SEEK_SET);
 	while(i < CHUNK_WORD_COUNT) {
-		if(fgets(line_buffer, sizeof(line_buffer), file)) {
+		if(fgets(line_buffer, sizeof(line_buffer) + 1, file)) {
 			ch->strings[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
 			end_char_ptr = strchr(line_buffer, '\n');
 			end_char_pos = end_char_ptr - line_buffer;
