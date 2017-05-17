@@ -25,14 +25,16 @@ int main() {
 	}
 
 	printf("Maximum line size: %d\n", MAX_LINE_BUFFER_SIZE);
-	printf("Number of words: %d\n", CHUNK_WORD_COUNT);
+	printf("Number of words per chunk: %d\n", CHUNK_WORD_COUNT);
 
 	struct chunk *ch = malloc(sizeof(struct chunk *));
 	ch->start = 0;
 	while(ch->start >= 0) {
+		printf("Getting chunk at %d\n", ch->start);
 		get_chunk(words_file, ch);
-		printf("Printing chunk...\n");
-		print_chunk(ch->strings);
+		if(ch->start != -1) {
+			print_chunk(ch->strings);
+		}
 	}
 
 	return 0;
@@ -41,24 +43,22 @@ int main() {
 void get_chunk(FILE *file, struct chunk *ch) {
 	ch->strings = malloc(CHUNK_WORD_COUNT * sizeof(char *));
 	int i = 0;
-	char line_buffer[MAX_LINE_BUFFER_SIZE];
+	char line_buffer[MAX_LINE_BUFFER_SIZE + 1];
 	char *end_char_ptr = malloc(sizeof(char));
 	int end_char_pos = 0;
-	printf("Starting at %d\n", ch->start);
 	fseek(file, ch->start, SEEK_SET);
-	while(fgets(line_buffer, sizeof(line_buffer), file) && i < CHUNK_WORD_COUNT) {
-		ch->strings[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
-		end_char_ptr = strchr(line_buffer, '\n');
-		if(end_char_ptr == NULL) {
-			end_char_pos = strlen(line_buffer);
-			ch->start = -1;
-			strncpy(ch->strings[i], line_buffer, end_char_pos);
-		} else {
+	while(i < CHUNK_WORD_COUNT) {
+		if(fgets(line_buffer, sizeof(line_buffer), file)) {
+			ch->strings[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
+			end_char_ptr = strchr(line_buffer, '\n');
 			end_char_pos = end_char_ptr - line_buffer;
 			ch->start += end_char_pos + 1; // +1 for \n character
 			strncpy(ch->strings[i], line_buffer, end_char_pos);
+			i++;
+		} else {
+			ch->start = -1;
+			break;
 		}
-		i++;
 	}
 }
 
