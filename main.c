@@ -15,6 +15,7 @@
 struct chunk {
 	char **strings;
 	int start;
+	int num_words_last_chunk;
 };
 
 int main() {
@@ -32,9 +33,7 @@ int main() {
 	while(ch->start >= 0) {
 		printf("Getting chunk at %d\n", ch->start);
 		get_chunk(words_file, ch);
-		if(ch->start != -1) {
-			print_chunk(ch->strings);
-		}
+		print_chunk(ch);
 	}
 
 	return 0;
@@ -56,14 +55,19 @@ void get_chunk(FILE *file, struct chunk *ch) {
 			strncpy(ch->strings[i], line_buffer, end_char_pos);
 			i++;
 		} else {
+			ch->num_words_last_chunk = i;
 			ch->start = -1;
 			break;
 		}
 	}
 }
 
-void print_chunk(char **strings) {
-	for(int i = 0;i < CHUNK_WORD_COUNT;i++) {
-		printf("%s\n", strings[i]);
+void print_chunk(struct chunk *ch) {
+	int len = CHUNK_WORD_COUNT;
+	if(ch->start == -1) {
+		len = ch->num_words_last_chunk;
+	}
+	for(int i = 0;i < len;i++) {
+		printf("%s\n", ch->strings[i]);
 	}
 }
