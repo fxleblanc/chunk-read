@@ -12,6 +12,11 @@
 #define DICT_WORD_COUNT 0
 #endif
 
+struct chunk {
+	int num_char;
+	char **strings;
+};
+
 int main() {
 	FILE *words_file = fopen("words.txt", "r");
 	if (!words_file) {
@@ -19,24 +24,33 @@ int main() {
 		return 1;
 	}
 
-	char **chunk = malloc(WORDS_WORD_COUNT * sizeof(char *));
 	printf("Maximum line size: %d\n", MAX_LINE_BUFFER_SIZE);
 	printf("Number of words: %d\n", WORDS_WORD_COUNT);
+
+	struct chunk *ch = malloc(sizeof(struct chunk *));
+	get_chunk(words_file, ch, 0);
+
+	for(int i = 0;i < WORDS_WORD_COUNT;i++) {
+		printf("%s\n", ch->strings[i]);
+	}
+	printf("Total number of characters: %d\n", ch->num_char);
+
+	return 0;
+}
+
+void get_chunk(FILE *file, struct chunk *ch, int start) {
+	char **strings = malloc(WORDS_WORD_COUNT * sizeof(char *));
 	int i = 0;
 	int num_char = 0;
 	char line_buffer[MAX_LINE_BUFFER_SIZE];
-	while(fgets(line_buffer, sizeof(line_buffer), words_file) && i < WORDS_WORD_COUNT) {
-		chunk[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
+	while(fgets(line_buffer, sizeof(line_buffer), file) && i < WORDS_WORD_COUNT) {
+		strings[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
 		char *end_char_ptr = strchrnul(line_buffer, '\n');
 		int end_char_pos = end_char_ptr - line_buffer;
 		num_char += end_char_pos + 1;// +1 for \n characters
-		strncpy(chunk[i], line_buffer, end_char_pos);
+		strncpy(strings[i], line_buffer, end_char_pos);
 		i++;
 	}
-	for(int i = 0;i < WORDS_WORD_COUNT;i++) {
-		printf("%s\n", chunk[i]);
-	}
-	printf("Total number of characters: %d\n", num_char);
-
-	return 0;
+	ch->strings = strings;
+	ch->num_char = num_char;
 }
