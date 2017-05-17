@@ -5,8 +5,8 @@
 #ifndef MAX_LINE_BUFFER_SIZE
 #define MAX_LINE_BUFFER_SIZE 0
 #endif
-#ifndef WORDS_WORD_COUNT
-#define WORDS_WORD_COUNT 0
+#ifndef CHUNK_WORD_COUNT
+#define CHUNK_WORD_COUNT 0
 #endif
 #ifndef DICT_WORD_COUNT
 #define DICT_WORD_COUNT 0
@@ -14,6 +14,7 @@
 
 struct chunk {
 	char **strings;
+	int start;
 };
 
 int main() {
@@ -24,28 +25,45 @@ int main() {
 	}
 
 	printf("Maximum line size: %d\n", MAX_LINE_BUFFER_SIZE);
-	printf("Number of words: %d\n", WORDS_WORD_COUNT);
+	printf("Number of words: %d\n", CHUNK_WORD_COUNT);
 
 	struct chunk *ch = malloc(sizeof(struct chunk *));
-	get_chunk(words_file, ch, 0);
-
-	for(int i = 0;i < WORDS_WORD_COUNT;i++) {
-		printf("%s\n", ch->strings[i]);
+	ch->start = 0;
+	while(ch->start >= 0) {
+		get_chunk(words_file, ch);
+		printf("Printing chunk...\n");
+		print_chunk(ch->strings);
 	}
 
 	return 0;
 }
 
-void get_chunk(FILE *file, struct chunk *ch, int start) {
-	char **strings = malloc(WORDS_WORD_COUNT * sizeof(char *));
+void get_chunk(FILE *file, struct chunk *ch) {
+	ch->strings = malloc(CHUNK_WORD_COUNT * sizeof(char *));
 	int i = 0;
 	char line_buffer[MAX_LINE_BUFFER_SIZE];
-	while(fgets(line_buffer, sizeof(line_buffer), file) && i < WORDS_WORD_COUNT) {
-		strings[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
-		char *end_char_ptr = strchrnul(line_buffer, '\n');
-		int end_char_pos = end_char_ptr - line_buffer;
-		strncpy(strings[i], line_buffer, end_char_pos);
+	char *end_char_ptr = malloc(sizeof(char));
+	int end_char_pos = 0;
+	printf("Starting at %d\n", ch->start);
+	fseek(file, ch->start, SEEK_SET);
+	while(fgets(line_buffer, sizeof(line_buffer), file) && i < CHUNK_WORD_COUNT) {
+		ch->strings[i] = malloc(MAX_LINE_BUFFER_SIZE * sizeof(char));
+		end_char_ptr = strchr(line_buffer, '\n');
+		if(end_char_ptr == NULL) {
+			end_char_pos = strlen(line_buffer);
+			ch->start = -1;
+			strncpy(ch->strings[i], line_buffer, end_char_pos);
+		} else {
+			end_char_pos = end_char_ptr - line_buffer;
+			ch->start += end_char_pos + 1; // +1 for \n character
+			strncpy(ch->strings[i], line_buffer, end_char_pos);
+		}
 		i++;
 	}
-	ch->strings = strings;
+}
+
+void print_chunk(char **strings) {
+	for(int i = 0;i < CHUNK_WORD_COUNT;i++) {
+		printf("%s\n", strings[i]);
+	}
 }
