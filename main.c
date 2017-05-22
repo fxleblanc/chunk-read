@@ -4,7 +4,7 @@
 
 #define MAX_LINE_BUFFER_SIZE 3000
 #ifndef CHUNK_WORD_COUNT
-#define CHUNK_WORD_COUNT 0
+#define CHUNK_WORD_COUNT 5
 #endif
 
 struct chunk {
