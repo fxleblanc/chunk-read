@@ -2,14 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef MAX_LINE_BUFFER_SIZE
-#define MAX_LINE_BUFFER_SIZE 0
-#endif
+#define MAX_LINE_BUFFER_SIZE 3000
 #ifndef CHUNK_WORD_COUNT
 #define CHUNK_WORD_COUNT 0
-#endif
-#ifndef DICT_WORD_COUNT
-#define DICT_WORD_COUNT 0
 #endif
 
 struct chunk {
