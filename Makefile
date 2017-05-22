@@ -9,6 +9,6 @@ build:
 	gcc -D MAX_LINE_BUFFER_SIZE=$(MLBS) -D CHUNK_WORD_COUNT=$(CWC) main.c
 debug:
 	gcc -g -D MAX_LINE_BUFFER_SIZE=$(MLBS) -D CHUNK_WORD_COUNT=$(CWC) main.c
-	gdb a.out
+	gdb --args a.out words.txt dict.txt
 run: build
-	./a.out
+	./a.out words.txt dict.txt

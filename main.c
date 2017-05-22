@@ -18,9 +18,18 @@ struct chunk {
 	int num_words_last_chunk;
 };
 
-int main() {
-	FILE *words_file = fopen("words.txt", "r");
+int main(int argc, char **argv) {
+	FILE *words_file, *dict_file;
+	if(argc == 3) {
+		words_file = fopen(argv[1], "r");
+		dict_file = fopen(argv[2], "r");
+	}
 	if (!words_file) {
+		fprintf(stderr, "error: file open failed.\n");
+		return 1;
+	}
+
+	if (!dict_file) {
 		fprintf(stderr, "error: file open failed.\n");
 		return 1;
 	}
